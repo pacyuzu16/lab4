@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/post.dart';
 import '../services/api_service.dart';
+import '../utils/exceptions.dart';
 import '../utils/snack_helper.dart';
 
 class PostFormScreen extends StatefulWidget {
@@ -68,7 +69,12 @@ class _PostFormScreenState extends State<PostFormScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) showErrorSnackBar(context, 'Error: $e');
+      if (mounted) {
+        final message = e is NoInternetException
+            ? 'No internet connection. Please check your network.'
+            : 'Error: $e';
+        showErrorSnackBar(context, message);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

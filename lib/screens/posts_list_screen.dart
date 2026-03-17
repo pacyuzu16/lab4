@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/post.dart';
 import '../services/api_service.dart';
+import '../utils/exceptions.dart';
 import '../utils/snack_helper.dart';
 import 'post_detail_screen.dart';
 import 'post_form_screen.dart';
@@ -116,38 +117,57 @@ class _PostsListScreenState extends State<PostsListScreen> {
 
           // ── Error ────────────────────────────────────────────────────
           if (snapshot.hasError) {
+            final isNoInternet = snapshot.error is NoInternetException;
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
+                        color: isNoInternet
+                            ? Colors.orange.shade50
+                            : Colors.red.shade50,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.cloud_off_rounded,
-                          size: 56, color: Colors.red.shade400),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Failed to load posts',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${snapshot.error}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade600),
+                      child: Icon(
+                        isNoInternet
+                            ? Icons.wifi_off_rounded
+                            : Icons.cloud_off_rounded,
+                        size: 64,
+                        color: isNoInternet
+                            ? Colors.orange.shade400
+                            : Colors.red.shade400,
+                      ),
                     ),
                     const SizedBox(height: 24),
+                    Text(
+                      isNoInternet
+                          ? 'No Internet Connection'
+                          : 'Something went wrong',
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      isNoInternet
+                          ? 'Please check your Wi-Fi or mobile data\nand try again.'
+                          : '${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.grey.shade600, height: 1.5),
+                    ),
+                    const SizedBox(height: 32),
                     ElevatedButton.icon(
                       onPressed: _refresh,
                       icon: const Icon(Icons.refresh_rounded),
                       label: const Text('Try Again'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 28, vertical: 14),
+                      ),
                     ),
                   ],
                 ),
